@@ -1,2 +1,6 @@
 console.log(document.title);
-console.log("hello there");
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "UnsubbyPayload") {
+    alert("Received message from React app: " + message.payload);
+  }
+})

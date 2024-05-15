@@ -1,8 +1,18 @@
 import './App.css';
 import { Button } from '@nextui-org/react';
+import Browser from 'webextension-polyfill';
+
 
 function App() {
-  const handleRunClick = (event) => {
+  const handleRunClick = () => {
+    Browser.tabs.query({active: true, currentWindow: true}).then(tabs => {
+      const activeTab = tabs[0];
+      if (activeTab.id) {
+        alert("Payload sent to content script.");
+        Browser.tabs.sendMessage(activeTab.id, {type: "UnsubbyPayload", payload: "Hello there from react."})
+      }
+    })
+
   }
 
 
