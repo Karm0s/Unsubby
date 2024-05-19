@@ -84,18 +84,34 @@ const injectStyles = () => {
 function injectUI(channels) {
   injectStyles();
   channels.map((channel, index) => {
-    const channelCheckbox = createCheckbox(index);
+    const channelCheckbox = createCheckbox(`${batchId}-${index}`);
     channel.querySelector("#buttons").appendChild(channelCheckbox);
   });
 }
 
-const channelsContainer = document.getElementById("grid-container");
+// const sectionsContainer = document.querySelectorAll("#contents>ytd-item-section-renderer"); 
+const sectionsContainer = document.getElementById("contents"); 
+const channels = Array.from(sectionsContainer.querySelectorAll("ytd-channel-renderer"));
+injectUI(channels);
 
-const channelsList = Array.from(document.querySelectorAll("ytd-channel-renderer"));
-console.log(channelsList);
+var batchId = 0;
+const observer = new MutationObserver((mutationList, observer) => {
+  if (mutationList[0].addedNodes.length) {
+    const channels = Array.from(mutationList[0].addedNodes[0].querySelectorAll("ytd-channel-renderer"));
+    batchId += 1;
+    injectUI(channels);
+  }
+});
+observer.observe(sectionsContainer, {childList: true});
 
-injectUI(channelsList);
 
+// const channelsContainer = document.getElementById("grid-container");
+//
+// const channelsList = Array.from(document.querySelectorAll("ytd-channel-renderer"));
+// console.log(channelsList);
+//
+// injectUI(channelsList);
+//
 
 // const channel = channelsList[0].querySelector("#subscribe-button button");
 // console.log(channel);
