@@ -1,130 +1,163 @@
 console.log("Working on: " + document.title);
 
-
-function createCheckmarkSVG() {
-  const svgNS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("width", "20");
-  svg.setAttribute("height", "20");
-  svg.setAttribute("viewBox", "0 0 20 20");
-  svg.setAttribute("fill", "none");
-  svg.setAttribute("stroke", "white");
-  svg.setAttribute("stroke-width", "2");
-  svg.setAttribute("stroke-linecap", "round");
-  svg.setAttribute("stroke-linejoin", "round");
-
-  const path = document.createElementNS(svgNS, "path");
-  path.setAttribute("d", "M5 10L8 13L15 6");
-
-  svg.appendChild(path);
-  svg.classList = "unsubby-checkmark";
-  return svg;
-}
-
-const createCheckbox = (id) => {
-  const checkboxId = `${id}-unsubby-checkbox`;
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.id = checkboxId;
-  checkbox.className = "unsubby-checkbox-input";
-
-  const label = document.createElement("label");
-  label.className = "unsubby-checkbox-label";
-  label.htmlFor = checkboxId;
-  label.appendChild(checkbox);
-  label.appendChild(createCheckmarkSVG());
-
-  const container = document.createElement("div");
-  container.className = "unsubby-checkbox-container";
-  container.appendChild(label);
-  return container;
-}
-
-const injectStyles = () => {
-  const cssStyles = `
-.unsubby-checkbox-container {
-  position: relative;
-  align-self: center;
-  margin: 0 0 0.5rem 2rem;
-}
-.unsubby-checkbox-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0%;
-}
-.unsubby-checkbox-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 4px;
-  border: 1px solid #cccfdb;
-  transition: all 0.1s ease-out;
-}
-.unsubby-checkbox-label > svg {
-  opacity: 0%;
-  transform: scale(1.5);
-  transition: all 0.1s ease-out;
-}
-.unsubby-checkbox-label:has(input[type="checkbox"]:checked) {
-  background-color: #FF0000;
-} 
-.unsubby-checkbox-label:has(input[type="checkbox"]:checked) > svg {
-  opacity: 100%;
-}
-`;
-  const styles = document.createElement("style");
-  styles.appendChild(document.createTextNode(cssStyles));
-  document.head.appendChild(styles);
-}
-
-
-function injectUI(channels) {
-  injectStyles();
-  channels.map((channel, index) => {
-    const channelCheckbox = createCheckbox(`${batchId}-${index}`);
-    channel.querySelector("#buttons").appendChild(channelCheckbox);
-  });
-}
-
-// const sectionsContainer = document.querySelectorAll("#contents>ytd-item-section-renderer"); 
-const sectionsContainer = document.getElementById("contents"); 
-const channels = Array.from(sectionsContainer.querySelectorAll("ytd-channel-renderer"));
-injectUI(channels);
-
-var batchId = 0;
-const observer = new MutationObserver((mutationList, observer) => {
-  if (mutationList[0].addedNodes.length) {
-    const channels = Array.from(mutationList[0].addedNodes[0].querySelectorAll("ytd-channel-renderer"));
-    batchId += 1;
-    injectUI(channels);
+class Unsubscriber {
+  constructor() {
+    this.elementsList = {};
   }
-});
-observer.observe(sectionsContainer, {childList: true});
+  pushElement(id, element) {
+    if (!this.elementsList[id]) {
+      console.log("Element not in list. pushing...");
+      this.elementsList[id] = element;
+    }
+    console.log(this.elementsList);
+  }
+  popElement(id) {
+    console.log("Popping element from list");
+    delete this.elementsList[id];
+    console.log(this.elementsList);
+  }
+  run() {
+    alert("running script ....");
+
+  }
+  getListLength() {
+    return Object.keys(this.elementsList).length;
+  }
+}
+
+class ExtensionUI {
+  constructor(unsubscriber) {
+    this.batchId = 0;
+    this.unsubscriber = unsubscriber;
+
+    document.body.appendChild(this.createFloatingButton());
+
+    const sectionsContainer = document.getElementById("contents");
+    const channels = Array.from(sectionsContainer.querySelectorAll("ytd-channel-renderer"));
+    this.injectCheckboxes(channels);
+
+    const observer = new MutationObserver((mutationList, observer) => {
+      if (mutationList[0].addedNodes.length) {
+        const channels = Array.from(mutationList[0].addedNodes[0].querySelectorAll("ytd-channel-renderer"));
+        this.injectCheckboxes(channels);
+      }
+    });
+    observer.observe(sectionsContainer, { childList: true });
+  }
+
+  injectCheckboxes(channels) {
+    channels.map((channel, index) => {
+      const channelCheckbox = this.createCheckbox(`${this.batchId}-${index}`);
+      channel.querySelector("#buttons").appendChild(channelCheckbox);
+    });
+    this.batchId += 1;
+  }
+
+  createCheckmarkSVG() {
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", "20");
+    svg.setAttribute("height", "20");
+    svg.setAttribute("viewBox", "0 0 20 20");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "white");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", "M5 10L8 13L15 6");
+
+    svg.appendChild(path);
+    svg.classList = "unsubby-checkmark";
+    return svg;
+  }
+
+  createCheckbox(id) {
+    const checkboxId = `${id}-unsubby-checkbox`;
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = checkboxId;
+    checkbox.className = "unsubby-checkbox-input";
+
+    checkbox.addEventListener("change", (event) => {
+      if (event.target.checked === true) {
+        const unsubscribeButton = event.target.parentElement.parentElement.parentElement.querySelector("#subscribe-button button");
+        this.unsubscriber.pushElement(event.target.id, unsubscribeButton);
+      } else {
+        this.unsubscriber.popElement(event.target.id);
+      }
+      document.getElementById("unsubby-unsubscribe-button").hidden = this.unsubscriber.getListLength() === 0;
+    });
+
+    const label = document.createElement("label");
+    label.className = "unsubby-checkbox-label";
+    label.htmlFor = checkboxId;
+    label.appendChild(checkbox);
+    label.appendChild(this.createCheckmarkSVG());
+
+    const container = document.createElement("div");
+    container.className = "unsubby-checkbox-container";
+    container.appendChild(label);
+    return container;
+  }
+
+  renderConfirmationPopup() {
+    const confirmationPopup = document.createElement("div");
+    confirmationPopup.className = "unsubby-confirmation-popup";
+
+    const text = document.createElement("p");
+    text.textContent = `You have selected ${this.unsubscriber.getListLength()} channels to unsubscibe from, do you want to proceed ?`
+    text.className = "unsubby-popup-text";
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.className = "unsubby-buttons-container";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "unsubby-button";
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", (event) => {
+      const popupContainer = document.getElementById("unsubby-popup-container");
+      document.body.removeChild(popupContainer);
+    })
+
+    const confirmButton = document.createElement("button");
+    confirmButton.className = "unsubby-button unsubby-button-confirm";
+    confirmButton.textContent = "Go";
+    confirmButton.addEventListener("click", (event) => {
+      this.unsubscriber.run();
+    })
+
+    buttonsContainer.appendChild(cancelButton);
+    buttonsContainer.appendChild(confirmButton);
+
+    confirmationPopup.appendChild(text);
+    confirmationPopup.appendChild(buttonsContainer);
+
+    const container = document.createElement("div");
+    container.id = "unsubby-popup-container";
+    container.className = "unsubby-popup-container";
+    container.appendChild(confirmationPopup);
+
+    document.body.appendChild(container);
+  }
+
+  createFloatingButton() {
+    const button = document.createElement("button");
+    button.className = "unsubby-button unsubby-unsubscribe-button";
+    button.id = "unsubby-unsubscribe-button";
+    button.hidden = true;
+
+    button.textContent = "Unsubscribe";
+    button.addEventListener("click", (event) => {
+      this.renderConfirmationPopup();
+    });
+    return button;
+  }
+}
 
 
-// const channelsContainer = document.getElementById("grid-container");
-//
-// const channelsList = Array.from(document.querySelectorAll("ytd-channel-renderer"));
-// console.log(channelsList);
-//
-// injectUI(channelsList);
-//
 
-// const channel = channelsList[0].querySelector("#subscribe-button button");
-// console.log(channel);
-//
-// channel.click();
-// setTimeout(() => {
-//   const confirmBtn = document.querySelector("#confirm-button button");
-//   console.log(confirmBtn);
-// }, 500);
-//
-
-
-// [...channelsList].map(channel => {
-//   const btn = channel.querySelector("#subscribe-button button");
-//   console.log(btn);
-// });
+const unsubscriber = new Unsubscriber();
+console.log(unsubscriber);
+const UI = new ExtensionUI(unsubscriber);

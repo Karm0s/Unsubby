@@ -1,0 +1,97 @@
+.unsubby-popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+.unsubby-confirmation-popup {
+  background-color: white;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 5rem 5rem 5rem 5rem;
+}
+.unsubby-popup-text {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+.unsubby-buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4rem 0 0 0;
+}
+.unsubby-buttons-container > button {
+  margin: 0 1rem 0 1rem;
+}
+.unsubby-button-confirm:hover {
+  background-color: #FF0000 !important;
+  color: white !important;
+}
+.unsubby-button {
+  width: 150px;
+  height: 40px;
+  border-radius: 20px;
+  border: 0;
+  font-weight: 600;
+  font-size: 1.5rem; 
+  transition: all 0.1s ease-out;
+}
+.unsubby-unsubscribe-button {
+  position: fixed;
+  right: 4%;
+  bottom: 4%;
+  width: 150px;
+  height: 40px;
+  background-color: #FF0000;
+  color: white;
+}
+.unsubby-button:hover {
+  background-color: lightgray;
+  color: black;
+}
+.unsubby-button:active {
+  background-color: lightgray;
+  color: black;
+  transform: scale(0.95);
+}
+.unsubby-checkbox-container {
+  position: relative;
+  align-self: center;
+  margin: 0 0 0.5rem 2rem;
+}
+.unsubby-checkbox-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0%;
+}
+.unsubby-checkbox-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 4px;
+  border: 1px solid #cccfdb;
+  transition: all 0.1s ease-out;
+}
+.unsubby-checkbox-label > svg {
+  opacity: 0%;
+  transform: scale(1.5);
+  transition: all 0.1s ease-out;
+}
+.unsubby-checkbox-label:has(input[type="checkbox"]:checked) {
+  background-color: #FF0000;
+} 
+.unsubby-checkbox-label:has(input[type="checkbox"]:checked) > svg {
+  opacity: 100%;
+}
+
