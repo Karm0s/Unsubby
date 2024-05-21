@@ -29,6 +29,11 @@ class ExtensionUI {
   constructor(unsubscriber) {
     this.batchId = 0;
     this.unsubscriber = unsubscriber;
+    this.confirmationPopup = this.renderConfirmationPopup();
+
+    if (document.documentElement.hasAttribute("dark")) {
+      document.body.classList.add("unsubby-dark");
+    }
 
     document.body.appendChild(this.createFloatingButton());
 
@@ -107,24 +112,27 @@ class ExtensionUI {
     confirmationPopup.className = "unsubby-confirmation-popup";
 
     const text = document.createElement("p");
-    text.textContent = `You have selected ${this.unsubscriber.getListLength()} channels to unsubscibe from, do you want to proceed ?`
+    text.textContent = `You have selected ${this.unsubscriber.getListLength()} channels to unsubscibe from, do you want to proceed ?`;
     text.className = "unsubby-popup-text";
+    text.id = "unsubby-popup-text";
 
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "unsubby-buttons-container";
 
     const cancelButton = document.createElement("button");
-    cancelButton.className = "unsubby-button";
+    cancelButton.className = "unsubby-button unsubby-secondary-button";
     cancelButton.textContent = "Cancel";
     cancelButton.addEventListener("click", (event) => {
-      const popupContainer = document.getElementById("unsubby-popup-container");
-      document.body.removeChild(popupContainer);
+      // const popupContainer = document.getElementById("unsubby-popup-container");
+      // document.body.removeChild(popupContainer);
+      this.hideConfirmationPopup();
     })
 
     const confirmButton = document.createElement("button");
-    confirmButton.className = "unsubby-button unsubby-button-confirm";
+    confirmButton.className = "unsubby-button unsubby-primary-button";
     confirmButton.textContent = "Go";
     confirmButton.addEventListener("click", (event) => {
+      this.hideConfirmationPopup();
       this.unsubscriber.run();
     })
 
@@ -140,17 +148,31 @@ class ExtensionUI {
     container.appendChild(confirmationPopup);
 
     document.body.appendChild(container);
+    return container;
+  }
+
+  showConfirmationPopup() {
+    this.updateConfirmationPopup();
+    this.confirmationPopup.classList.add("unsubby-show-popup");
+  }
+
+  hideConfirmationPopup() {
+    this.confirmationPopup.classList.remove("unsubby-show-popup");
+  }
+
+  updateConfirmationPopup() {
+    this.confirmationPopup.querySelector("p#unsubby-popup-text").textContent = `You have selected ${this.unsubscriber.getListLength()} channels to unsubscibe from, do you want to proceed ?`;
   }
 
   createFloatingButton() {
     const button = document.createElement("button");
-    button.className = "unsubby-button unsubby-unsubscribe-button";
+    button.className = "unsubby-button unsubby-primary-button unsubby-unsubscribe-button";
     button.id = "unsubby-unsubscribe-button";
     button.hidden = true;
 
     button.textContent = "Unsubscribe";
     button.addEventListener("click", (event) => {
-      this.renderConfirmationPopup();
+      this.showConfirmationPopup();
     });
     return button;
   }

@@ -1,3 +1,20 @@
+:root {
+    /* Light Mode Colors */
+  color: black; 
+  --primary-button-background: #FF0000;
+  --primary-button-hover-background: #cc0000; 
+  --popup-background: #ffffff;
+  --secondary-button-background: #E0E0E0;
+  --secondary-button-hover-background: #BDBDBD;
+  --secondary-button-text: black;
+}
+.unsubby-dark {
+  color: white;
+  --popup-background: #181818;
+  --secondary-button-background: #404040;
+  --secondary-button-hover-background: #606060;
+  --secondary-button-text: white;
+}
 .unsubby-popup-container {
   position: fixed;
   top: 0;
@@ -7,10 +24,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: -5;
+  opacity: 0%;
+  transition: all 0.2s ease-out;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.unsubby-show-popup {
+  opacity: 100%;
   z-index: 5000;
 }
 .unsubby-confirmation-popup {
-  background-color: white;
+  background-color: var(--popup-background);
   border-radius: 25px;
   display: flex;
   align-items: center;
@@ -31,10 +55,6 @@
 .unsubby-buttons-container > button {
   margin: 0 1rem 0 1rem;
 }
-.unsubby-button-confirm:hover {
-  background-color: #FF0000 !important;
-  color: white !important;
-}
 .unsubby-button {
   width: 150px;
   height: 40px;
@@ -44,22 +64,26 @@
   font-size: 1.5rem; 
   transition: all 0.1s ease-out;
 }
-.unsubby-unsubscribe-button {
-  position: fixed;
-  right: 4%;
-  bottom: 4%;
-  width: 150px;
-  height: 40px;
-  background-color: #FF0000;
+.unsubby-secondary-button {
+  color: var(--secondary-button-text);
+  background-color: var(--secondary-button-background);
+}
+.unsubby-secondary-button:hover {
+  background-color: var(--secondary-button-hover-background);
+}
+.unsubby-primary-button {
+  background-color: var(--primary-button-background);
   color: white;
 }
-.unsubby-button:hover {
-  background-color: lightgray;
-  color: black;
+.unsubby-primary-button:hover {
+  background-color: var(--primary-button-hover-background);
+}
+.unsubby-unsubscribe-button {
+  position: fixed;
+  bottom: 4%;
+  right: 4%;
 }
 .unsubby-button:active {
-  background-color: lightgray;
-  color: black;
   transform: scale(0.95);
 }
 .unsubby-checkbox-container {
