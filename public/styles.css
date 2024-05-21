@@ -122,4 +122,11 @@
 .unsubby-checkbox-label:has(input[type="checkbox"]:checked) > svg {
   opacity: 100%;
 }
-
+.unsubby-select-all-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 4rem;
+  font-weight: 600;
+}
