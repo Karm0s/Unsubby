@@ -1,5 +1,25 @@
 console.log("Working on: " + document.title);
 
+function createCheckmarkSVG() {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "20");
+  svg.setAttribute("height", "20");
+  svg.setAttribute("viewBox", "0 0 20 20");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "white");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+
+  const path = document.createElementNS(svgNS, "path");
+  path.setAttribute("d", "M5 10L8 13L15 6");
+
+  svg.appendChild(path);
+  svg.classList = "unsubby-checkmark";
+  return svg;
+}
+
 class Unsubscriber {
   constructor() {
     this.elementsList = {};
@@ -25,9 +45,14 @@ class Unsubscriber {
   }
 }
 
+
 class ExtensionUI {
   constructor(unsubscriber) {
     this.batchId = 0;
+    this.channelCheckboxes = [];
+    this.selectedAllState = false;
+    this.confirmationPopupVisible = false;
+    this.unsubscribeButtonVisible = false;
     this.unsubscriber = unsubscriber;
 
     if (document.documentElement.hasAttribute("dark")) {
@@ -35,10 +60,12 @@ class ExtensionUI {
     }
 
     this.confirmationPopup = this.renderConfirmationPopup();
-    document.body.appendChild(this.createFloatingButton());
+    this.floatingUnsubscribeButton = this.createFloatingButton();
+
+    document.body.appendChild(this.floatingUnsubscribeButton);
 
     const sectionsContainer = document.getElementById("contents");
-    sectionsContainer.insertBefore(this.renderSelectAllCheckbox(), sectionsContainer.firstChild);
+    sectionsContainer.parentNode.insertBefore(this.renderSelectAllCheckbox(), sectionsContainer);
     const channels = Array.from(sectionsContainer.querySelectorAll("ytd-channel-renderer"));
     this.injectCheckboxes(channels);
 
@@ -60,49 +87,35 @@ class ExtensionUI {
         } else {
           this.unsubscriber.popElement(event.target.id);
         }
-        document.getElementById("unsubby-unsubscribe-button").hidden = this.unsubscriber.getListLength() === 0;
+        this.floatingUnsubscribeButton.hidden = this.unsubscriber.getListLength() === 0;
       });
+      this.channelCheckboxes.push(channelCheckbox);
       channel.querySelector("#buttons").appendChild(channelCheckbox);
     });
     this.batchId += 1;
   }
 
-  createCheckmarkSVG() {
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("width", "20");
-    svg.setAttribute("height", "20");
-    svg.setAttribute("viewBox", "0 0 20 20");
-    svg.setAttribute("fill", "none");
-    svg.setAttribute("stroke", "white");
-    svg.setAttribute("stroke-width", "2");
-    svg.setAttribute("stroke-linecap", "round");
-    svg.setAttribute("stroke-linejoin", "round");
-
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", "M5 10L8 13L15 6");
-
-    svg.appendChild(path);
-    svg.classList = "unsubby-checkmark";
-    return svg;
-  }
 
   renderSelectAllCheckbox() {
     const label = document.createElement("p");
-    label.textContent = "Select All"
-    const selectAllCheckbox = this.createCheckbox("unsubby-select-all-checkbox", this.selectAllCheckboxes);
+    label.textContent = "Select All Loaded Channels";
+    const selectAllCheckbox = this.createCheckbox("unsubby-select-all-checkbox", (checked) => {
+      this.channelCheckboxes.map(channel => {
+        const checkbox = channel.querySelector("input");
+        checkbox.checked = checked;
+        const unsubscribeButton = checkbox.parentElement.parentElement.parentElement.querySelector("#subscribe-button button");
+        this.unsubscriber.pushElement(checkbox.id, unsubscribeButton);
+      });
+      this.selectedAllState = checked;
+      this.floatingUnsubscribeButton.hidden = !checked;
+    });
 
     const container = document.createElement("div");
     container.className = "unsubby-select-all-container";
-    
+
     container.appendChild(label);
     container.appendChild(selectAllCheckbox);
     return container;
-  }
-
-  selectAllCheckboxes() {
-    console.log("SELECT ALL CHECKBOXES");
-
   }
 
   createCheckbox(id, callback) {
@@ -111,14 +124,17 @@ class ExtensionUI {
     checkbox.type = "checkbox";
     checkbox.id = checkboxId;
     checkbox.className = "unsubby-checkbox-input";
+    checkbox.checked = this.selectedAllState;
 
-    checkbox.addEventListener("change", callback);
+    checkbox.addEventListener("change", (event) => {
+      callback(event.target.checked);
+    });
 
     const label = document.createElement("label");
     label.className = "unsubby-checkbox-label";
     label.htmlFor = checkboxId;
     label.appendChild(checkbox);
-    label.appendChild(this.createCheckmarkSVG());
+    label.appendChild(createCheckmarkSVG());
 
     const container = document.createElement("div");
     container.className = "unsubby-checkbox-container";
@@ -182,14 +198,14 @@ class ExtensionUI {
   }
 
   createFloatingButton() {
-    const button = document.createElement("button");
-    button.className = "unsubby-button unsubby-primary-button unsubby-unsubscribe-button";
+    const button = document.createelement("button");
+    button.classname = "unsubby-button unsubby-primary-button unsubby-unsubscribe-button";
     button.id = "unsubby-unsubscribe-button";
     button.hidden = true;
 
-    button.textContent = "Unsubscribe";
-    button.addEventListener("click", (event) => {
-      this.showConfirmationPopup();
+    button.textcontent = "unsubscribe";
+    button.addeventlistener("click", (event) => {
+      this.showconfirmationpopup();
     });
     return button;
   }
