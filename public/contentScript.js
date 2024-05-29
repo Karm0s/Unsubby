@@ -309,7 +309,7 @@ class ChannelCheckboxes {
       checkbox.set(state);
       if (!state && this.checkedIds.includes(id)) {
         this.checkedIds = this.checkedIds.filter(id => id !== checkbox.id);
-      } else if (state && !(checkbox.id in this.checkedIds)) {
+      } else if (state && !this.checkedIds.includes(id)) {
         this.checkedIds.push(id);
       }
     }
