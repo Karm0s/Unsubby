@@ -56,13 +56,14 @@ class Button {
 
 class Checkbox {
   constructor(mediator, id, initialState) {
-    this.id = `${id}-unsubby-checkbox`;
+    this.id = `${id}-unsubby-checkbox-container`;
+    this.checkboxId = `${id}-unsubby-checkbox`;
 
 
     this.mediator = mediator;
     this.checkbox = document.createElement("input");
     this.checkbox.type = "checkbox";
-    this.checkbox.id = this.id;
+    this.checkbox.id = this.checkboxId;
     this.checkbox.className = "unsubby-checkbox-input";
     this.checkbox.checked = initialState;
 
@@ -72,11 +73,12 @@ class Checkbox {
 
     const label = document.createElement("label");
     label.className = "unsubby-checkbox-label";
-    label.htmlFor = this.id;
+    label.htmlFor = this.checkboxId;
     label.appendChild(this.checkbox);
     label.appendChild(createCheckmarkSVG());
 
     this.element = document.createElement("div");
+    this.element.id = this.id;
     this.element.className = "unsubby-checkbox-container";
     this.element.appendChild(label);
   }
@@ -102,7 +104,6 @@ class CheckAllCheckbox {
     this.element = document.createElement("div");
     this.element.className = "unsubby-select-all-container";
     this.element.appendChild(label);
-    console.log(this.checkbox.getDOMElement());
     this.element.appendChild(this.checkbox.getDOMElement());
   }
 
@@ -121,6 +122,80 @@ class CheckAllCheckbox {
   }
 }
 
+class Popup {
+  constructor(mediator, contentElement,
+    {
+      title = "",
+      hasConfirmButton = false,
+      hasCancelButton = false,
+      confirmText = "confirm",
+      cancelText = "cancel" }) {
+
+    this.mediator = mediator;
+    this.contentElement = contentElement;
+    this.contentElement.classList.add("unsubby-popup-content");
+
+    const titleElement = document.createElement("p");
+    titleElement.textContent = title;
+    titleElement.className = "unsubby-popup-text";
+    titleElement.id = "unsubby-popup-text";
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.className = "unsubby-buttons-container";
+    if (hasCancelButton) {
+      this.cancelButton = new Button(this, "unsubby-popup-cancel-button", "secondary", cancelText);
+      buttonsContainer.appendChild(this.cancelButton.getDOMElement());
+    }
+    if (hasConfirmButton) {
+      this.confirmButton = new Button(this, "unsubby-popup-primary-button", "primary", confirmText);
+      buttonsContainer.appendChild(this.confirmButton.getDOMElement());
+    }
+
+    this.popupElement = document.createElement("div");
+    this.popupElement.className = "unsubby-popup";
+    this.popupElement.appendChild(titleElement);
+    this.popupElement.appendChild(this.contentElement);
+    this.popupElement.appendChild(buttonsContainer);
+
+    this.element = document.createElement("div");
+    this.element.id = "unsubby-popup-container";
+    this.element.className = "unsubby-popup-container";
+    this.element.appendChild(this.popupElement);
+  }
+
+  getDOMElement() {
+    return this.element;
+  }
+
+  notify(sender, payload) {
+    let event = "";
+    if (sender === this.confirmButton && payload.type === "click") {
+      event = "confirm";
+    } else if (sender === this.cancelButton && payload.type === "click") {
+      event = "cancel";
+    }
+    this.mediator.notify(this, { type: event });
+  }
+
+  refreshContent(newContent) {
+    this.contentElement = newContent;
+  }
+
+  hide() {
+    this.element.classList.remove("unsubby-show-popup");
+  }
+
+  show() {
+    this.element.classList.add("unsubby-show-popup");
+  }
+}
+
+function createLoadingSpinner() {
+  const spinner = document.createElement("span");
+  spinner.className = "unsubby-loader";
+  return spinner;
+}
+
 class ConfirmationPopup {
   constructor(mediator) {
     this.mediator = mediator;
@@ -135,7 +210,7 @@ class ConfirmationPopup {
     buttonsContainer.appendChild(this.confirmButton.getDOMElement());
 
     this.confirmationPopup = document.createElement("div");
-    this.confirmationPopup.className = "unsubby-confirmation-popup";
+    this.confirmationPopup.className = "unsubby-popup";
     this.confirmationPopup.appendChild(buttonsContainer);
 
     this.element = document.createElement("div");
@@ -217,13 +292,25 @@ class ChannelCheckboxes {
       if (payload.state) {
         this.checkedIds.push(payload.id);
         if (this.checkedIds.length === 1) {
-          this.mediator.notify(this, {type: "first_element_pushed"});
+          this.mediator.notify(this, { type: "first_element_pushed" });
         }
       } else {
         this.checkedIds = this.checkedIds.filter(id => id !== payload.id);
         if (!this.checkedIds.length) {
-          this.mediator.notify(this, {type: "last_element_removed"});
+          this.mediator.notify(this, { type: "last_element_removed" });
         }
+      }
+    }
+  }
+
+  set(id, state) {
+    const checkbox = this.checkboxes.filter(checkbox => checkbox.id === id)[0];
+    if (checkbox) {
+      checkbox.set(state);
+      if (!state && this.checkedIds.includes(id)) {
+        this.checkedIds = this.checkedIds.filter(id => id !== checkbox.id);
+      } else if (state && !(checkbox.id in this.checkedIds)) {
+        this.checkedIds.push(id);
       }
     }
   }
@@ -233,7 +320,7 @@ class ChannelCheckboxes {
     this.checkboxes.forEach(checkbox => {
       checkbox.set(state);
       if (state) {
-        if (!(checkbox.id in this.checkedIds)) {
+        if (!this.checkedIds.includes(checkbox.id)) {
           this.checkedIds.push(checkbox.id);
         }
       } else {
@@ -246,18 +333,25 @@ class ChannelCheckboxes {
   getListLength() {
     return this.checkedIds.length;
   }
+
+  getList() {
+    return this.checkedIds;
+  }
 }
 
 class ExtensionUI {
-  constructor() {
+  constructor(unsubscriber) {
+    this.unsubscriber = unsubscriber;
+
     this.unsubscribeButton = new Button(this, "unsubby-unsubscribe-button", "main", "Unsubscribe", true);
     this.selectAllCheckbox = new CheckAllCheckbox(this);
     this.confirmationPopup = new ConfirmationPopup(this);
     this.channelCheckboxes = new ChannelCheckboxes(this);
+    this.loadingPopup = new Popup(this, createLoadingSpinner(), { title: "Process running...", hasCancelButton: true, cancelText: "cancel" });
 
     this.bindUI();
 
-   if (document.documentElement.hasAttribute("dark")) {
+    if (document.documentElement.hasAttribute("dark")) {
       document.body.classList.add("unsubby-dark");
     }
   }
@@ -265,25 +359,28 @@ class ExtensionUI {
   bindUI() {
     document.body.appendChild(this.unsubscribeButton.getDOMElement());
     document.body.appendChild(this.confirmationPopup.getDOMElement());
+    document.body.appendChild(this.loadingPopup.getDOMElement());
 
     const channelRenderersContainer = document.getElementById("contents");
     channelRenderersContainer.parentNode.insertBefore(this.selectAllCheckbox.getDOMElement(), channelRenderersContainer);
   }
 
-  notify(sender, payload) {
+  async notify(sender, payload) {
     if (sender === this.unsubscribeButton && payload.type === "click") {
       this.confirmationPopup.show(this.channelCheckboxes.getListLength());
     }
     if (sender === this.confirmationPopup) {
+      this.confirmationPopup.hide();
       switch (payload.type) {
         case "confirm":
-          console.log("CONFIRMED...RUNNING PROCESS");
+          this.loadingPopup.show();
+          const processedIds = await this.unsubscriber.unsubscribe(this.channelCheckboxes.getList());
+          processedIds.map(id => this.channelCheckboxes.set(id, false));
+          this.loadingPopup.hide();
           break;
         case "cancel":
-          console.log("CANCELED...");
           break;
       }
-      this.confirmationPopup.hide();
     }
     if (sender === this.selectAllCheckbox) {
       switch (payload.type) {
@@ -307,8 +404,61 @@ class ExtensionUI {
           break;
       }
     }
+    if (sender === this.loadingPopup) {
+      switch (payload.type) {
+        case "cancel":
+          this.loadingPopup.hide();
+          break;
+      }
+    }
   }
 }
 
+class Unsubscriber {
+  constructor() {
+    this.stopProcess = false;
+  }
 
-const UI = new ExtensionUI();
+  breakProcess() {
+    this.stopProcess = true;
+  }
+
+  unsubscribe(idsList) {
+    return new Promise((resolve) => {
+      const processedIds = [];
+      this.stopProcess = false;
+      let interval = 800;
+      let confirmWaitTime = 200;
+
+      const processId = (id, index) => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const buttonContainer = document.getElementById(id).parentElement;
+            buttonContainer.querySelector("button").click();
+            setTimeout(() => {
+              const popup = document.getElementsByTagName("tp-yt-paper-dialog")[0];
+              popup.querySelector("#confirm-button button").click();
+              processedIds.push(id);
+              resolve();
+            }, confirmWaitTime * index);
+          }, interval * index);
+        });
+      }
+
+      const processAllIds = async () => {
+        for (let i = 0; i < idsList.length; i++) {
+          if (this.stopProcess) {
+            break;
+          }
+          await processId(idsList[i], i);
+        }
+        resolve(processedIds);
+      }
+
+      processAllIds();
+    });
+  }
+}
+
+const unsubscriber = new Unsubscriber();
+const UI = new ExtensionUI(unsubscriber);

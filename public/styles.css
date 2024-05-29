@@ -8,6 +8,7 @@
   --secondary-button-hover-background: #BDBDBD;
   --secondary-button-text: black;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --spinner-color: black;
 }
 .unsubby-dark {
   color: white;
@@ -16,6 +17,7 @@
   --secondary-button-hover-background: #606060;
   --secondary-button-text: white;
   --shadow-color: rgba(0, 0, 0, 0.5);
+  --spinner-color: white;
 }
 .unsubby-popup-container {
   position: fixed;
@@ -36,25 +38,28 @@
   opacity: 100%;
   pointer-events: auto;
 }
-.unsubby-confirmation-popup {
+.unsubby-popup {
   background-color: var(--popup-background);
   border-radius: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 5rem 5rem 5rem 5rem;
+  padding: 2.5rem;
   box-shadow: 0px 4px 12px var(--shadow-color);
 }
 .unsubby-popup-text {
   font-weight: 600;
   font-size: 1.5rem;
 }
+.unsubby-popup-content {
+  margin: 2.5rem 0 0 0;
+}
 .unsubby-buttons-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 4rem 0 0 0;
+  margin: 2.5rem 0 0 0;
 }
 .unsubby-buttons-container > button {
   margin: 0 1rem 0 1rem;
@@ -130,3 +135,30 @@
   margin: 4rem;
   font-weight: 600;
 }
+tp-yt-iron-overlay-backdrop{
+  opacity: 0% !important;
+}
+tp-yt-paper-dialog {
+  opacity: 0% !important;
+}
+
+/* Loading spinner */
+.unsubby-loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #FFF;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+} 
