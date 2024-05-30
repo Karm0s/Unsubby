@@ -123,7 +123,7 @@ class CheckAllCheckbox {
 }
 
 class Popup {
-  constructor(mediator, contentElement,
+  constructor(mediator, contentElement = undefined,
     {
       title = "",
       hasConfirmButton = false,
@@ -132,8 +132,8 @@ class Popup {
       cancelText = "cancel" }) {
 
     this.mediator = mediator;
-    this.contentElement = contentElement;
-    this.contentElement.classList.add("unsubby-popup-content");
+
+
 
     const titleElement = document.createElement("p");
     titleElement.textContent = title;
@@ -151,10 +151,15 @@ class Popup {
       buttonsContainer.appendChild(this.confirmButton.getDOMElement());
     }
 
+
     this.popupElement = document.createElement("div");
     this.popupElement.className = "unsubby-popup";
     this.popupElement.appendChild(titleElement);
-    this.popupElement.appendChild(this.contentElement);
+    if (contentElement) {
+      this.contentElement = contentElement;
+      this.contentElement.classList.add("unsubby-popup-content");
+      this.popupElement.appendChild(this.contentElement);
+    }
     this.popupElement.appendChild(buttonsContainer);
 
     this.element = document.createElement("div");
@@ -178,7 +183,13 @@ class Popup {
   }
 
   refreshContent(newContent) {
+    if (this.contentElement) {
+      this.popupElement.removeChild(this.contentElement);
+    }
     this.contentElement = newContent;
+    this.contentElement.classList.add("unsubby-popup-content");
+    const lastChild = this.popupElement.childNodes[this.popupElement.childNodes.length - 1];
+    this.popupElement.insertBefore(this.contentElement, lastChild);
   }
 
   hide() {
@@ -196,64 +207,20 @@ function createLoadingSpinner() {
   return spinner;
 }
 
-class ConfirmationPopup {
+class ConfirmationPopup extends Popup {
   constructor(mediator) {
-    this.mediator = mediator;
-    this.listLength = 0;
-
-    this.cancelButton = new Button(this, "unsubby-popup-cancel-button", "secondary", "cancel");
-    this.confirmButton = new Button(this, "unsubby-popup-primary-button", "primary", "go");
-
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.className = "unsubby-buttons-container";
-    buttonsContainer.appendChild(this.cancelButton.getDOMElement());
-    buttonsContainer.appendChild(this.confirmButton.getDOMElement());
-
-    this.confirmationPopup = document.createElement("div");
-    this.confirmationPopup.className = "unsubby-popup";
-    this.confirmationPopup.appendChild(buttonsContainer);
-
-    this.element = document.createElement("div");
-    this.element.id = "unsubby-popup-container";
-    this.element.className = "unsubby-popup-container";
-    this.element.appendChild(this.confirmationPopup);
-  }
-
-  getDOMElement() {
-    return this.element;
-  }
-
-  notify(sender, payload) {
-    let event = "";
-    if (sender === this.confirmButton && payload.type === "click") {
-      event = "confirm";
-    } else if (sender === this.cancelButton && payload.type === "click") {
-      event = "cancel";
-    }
-    this.mediator.notify(this, { type: event });
-  }
-
-  refreshLabel() {
-    if (this.label) {
-      this.confirmationPopup.removeChild(this.label);
-    }
+    super(mediator, undefined, {hasCancelButton: true, hasConfirmButton: true });
     this.label = document.createElement("p");
-    this.label.textContent = `You have selected ${this.listLength} channels to unsubscibe from, do you want to proceed ?`;
+    this.label.textContent = "HELLO TEST TEST";
     this.label.className = "unsubby-popup-text";
     this.label.id = "unsubby-popup-text";
-    this.confirmationPopup.insertBefore(this.label, this.confirmationPopup.firstChild);
-  }
 
-  hide() {
-    this.element.classList.remove("unsubby-show-popup");
+    this.refreshContent(this.label);
   }
 
   show(listLength) {
-    if (this.listLength !== listLength) {
-      this.listLength = listLength;
-      this.refreshLabel();
-    }
-    this.element.classList.add("unsubby-show-popup");
+    this.label.textContent = `You have selected ${listLength} channels to unsubscibe from, do you want to proceed ?`;
+    super.show();
   }
 }
 
