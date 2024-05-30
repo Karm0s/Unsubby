@@ -135,10 +135,7 @@ class Popup {
 
 
 
-    const titleElement = document.createElement("p");
-    titleElement.textContent = title;
-    titleElement.className = "unsubby-popup-text";
-    titleElement.id = "unsubby-popup-text";
+
 
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "unsubby-buttons-container";
@@ -154,11 +151,17 @@ class Popup {
 
     this.popupElement = document.createElement("div");
     this.popupElement.className = "unsubby-popup";
-    this.popupElement.appendChild(titleElement);
     if (contentElement) {
       this.contentElement = contentElement;
       this.contentElement.classList.add("unsubby-popup-content");
       this.popupElement.appendChild(this.contentElement);
+    }
+    if (title) {
+      const titleElement = document.createElement("p");
+      titleElement.textContent = title;
+      titleElement.className = "unsubby-popup-text";
+      titleElement.id = "unsubby-popup-text";
+      this.popupElement.appendChild(titleElement);
     }
     this.popupElement.appendChild(buttonsContainer);
 
@@ -209,7 +212,7 @@ function createLoadingSpinner() {
 
 class ConfirmationPopup extends Popup {
   constructor(mediator) {
-    super(mediator, undefined, {hasCancelButton: true, hasConfirmButton: true });
+    super(mediator, undefined, { hasCancelButton: true, hasConfirmButton: true });
     this.label = document.createElement("p");
     this.label.textContent = "HELLO TEST TEST";
     this.label.className = "unsubby-popup-text";
