@@ -392,6 +392,7 @@ class ExtensionUI {
       switch (payload.type) {
         case "cancel":
           this.loadingPopup.hide();
+          this.unsubscriber.breakProcess();
           break;
       }
     }
