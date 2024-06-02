@@ -8,7 +8,7 @@
   --secondary-button-hover-background: #BDBDBD;
   --secondary-button-text: black;
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --spinner-color: black;
+  --spinner-color: #BDBDBD;
 }
 .unsubby-dark {
   color: white;
@@ -150,7 +150,7 @@ tp-yt-paper-dialog {
 .unsubby-loader {
   width: 48px;
   height: 48px;
-  border: 5px solid #FFF;
+  border: 5px solid var(--spinner-color);
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
