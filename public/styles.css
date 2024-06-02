@@ -52,6 +52,11 @@
   font-size: 1.5rem;
   margin: 0 0 2.5rem 0;
 }
+.unsubby-popup-text > span {
+  font-size: 1.5rem;
+  margin: 0 0 2.5rem 0;
+  font-weight: bold;
+}
 .unsubby-popup-content {
   margin: 0 0 2.5rem 0;
 }

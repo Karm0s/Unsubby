@@ -214,7 +214,7 @@ class ConfirmationPopup extends Popup {
   constructor(mediator) {
     super(mediator, undefined, { hasCancelButton: true, hasConfirmButton: true });
     this.label = document.createElement("p");
-    this.label.textContent = "HELLO TEST TEST";
+    this.label.textContent = "";
     this.label.className = "unsubby-popup-text";
     this.label.id = "unsubby-popup-text";
 
@@ -222,7 +222,7 @@ class ConfirmationPopup extends Popup {
   }
 
   show(listLength) {
-    this.label.textContent = `You have selected ${listLength} channels to unsubscibe from, do you want to proceed ?`;
+    this.label.innerHTML = `You have selected <span>${listLength} ${listLength > 1? "channels":"channel"}</span> to unsubscibe from, do you want to proceed ?`;
     super.show();
   }
 }
