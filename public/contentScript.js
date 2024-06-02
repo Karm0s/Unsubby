@@ -417,16 +417,14 @@ class Unsubscriber {
 
       const processId = (id, index) => {
         return new Promise((resolve) => {
+          const buttonContainer = document.getElementById(id).parentElement;
+          buttonContainer.querySelector("button").click();
           setTimeout(() => {
-            const buttonContainer = document.getElementById(id).parentElement;
-            buttonContainer.querySelector("button").click();
-            setTimeout(() => {
-              const popup = document.getElementsByTagName("tp-yt-paper-dialog")[0];
-              popup.querySelector("#confirm-button button").click();
-              processedIds.push(id);
-              resolve();
-            }, confirmWaitTime * index);
-          }, interval * index);
+            const popup = document.getElementsByTagName("tp-yt-paper-dialog")[0];
+            popup.querySelector("#confirm-button button").click();
+            processedIds.push(id);
+            resolve();
+          }, confirmWaitTime);
         });
       }
 
