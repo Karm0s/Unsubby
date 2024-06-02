@@ -300,6 +300,15 @@ class ChannelCheckboxes {
     });
   }
 
+  removeCheckbox(id) {
+    const checkbox = this.checkboxes.filter(c => c.id === id)[0];
+    if (checkbox) {
+      const parent = checkbox.getDOMElement().parentElement;
+      parent.removeChild(checkbox.getDOMElement());
+      this.checkboxes = this.checkboxes.filter(c => c.id !== id);
+    }
+  }
+
   getListLength() {
     return this.checkedIds.length;
   }
@@ -345,7 +354,12 @@ class ExtensionUI {
         case "confirm":
           this.loadingPopup.show();
           const processedIds = await this.unsubscriber.unsubscribe(this.channelCheckboxes.getList());
-          processedIds.map(id => this.channelCheckboxes.set(id, false));
+          processedIds.map(id => {
+            this.channelCheckboxes.set(id, false);
+            console.log("Removing that checkbox...");
+            this.channelCheckboxes.removeCheckbox(id);
+          });
+
           this.loadingPopup.hide();
           break;
         case "cancel":
