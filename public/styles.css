@@ -9,6 +9,7 @@
   --secondary-button-text: black;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --spinner-color: #BDBDBD;
+  --checkbox-color: #BDBDBD;
 }
 .unsubby-dark {
   color: white;
@@ -18,7 +19,9 @@
   --secondary-button-text: white;
   --shadow-color: rgba(0, 0, 0, 0.5);
   --spinner-color: white;
+  --checkbox-color: #BDBDBD;
 }
+
 .unsubby-popup-container {
   position: fixed;
   top: 0;
@@ -117,7 +120,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 4px;
-  border: 1px solid #cccfdb;
+  border: 2px solid var(--checkbox-color);
   transition: all 0.1s ease-out;
 }
 .unsubby-checkbox-label > svg {
@@ -127,6 +130,7 @@
 }
 .unsubby-checkbox-label:has(input[type="checkbox"]:checked) {
   background-color: #FF0000;
+  border-color: #FF0000;
 } 
 .unsubby-checkbox-label:has(input[type="checkbox"]:checked) > svg {
   opacity: 100%;
