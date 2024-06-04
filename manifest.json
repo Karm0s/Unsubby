@@ -3,33 +3,24 @@
   "name": "Unsubby",
   "version": "1.0",
   "description": "Remove youtube subscripitons with one click.",
-  "permissions": ["tabs", "scripting"],
+  "icons": {
+    "16": "ICON16.png",
+    "48": "ICON48.png",
+    "128": "ICON128.png"
+  },
   "action": {
     "default_icon": {
-      "16": "./ICON16.png",
-      "48": "./ICON48.png",
-      "128": "./ICON128.png"
+      "16": "ICON16.png",
+      "48": "ICON48.png",
+      "128": "ICON128.png"
     },
     "default_title": "Use unsubby"
   },
-  "page_action": {
-    "default_icon": {
-      "19": "./ICON19.png",
-      "38": "./ICON38.png"
-    },
-    "default_title": "Unsubby",
-    "show_matches": ["https://www.youtube.com/feed/channels*"]
-  },
   "background": {
-    "scripts": ["backgroundScript.js"],
-    "persistent": false,
-    "type": "module"
+    "service_worker": "backgroundScript.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["https://www.youtube.com/feed/channels*"],
-      "js": ["contentScript.js"],
-      "css": ["styles.css"]
-    }
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "*://*.youtube.com/feed/channels*"
   ]
 }
