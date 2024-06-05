@@ -1,5 +1,3 @@
-console.log("Working on: " + document.title);
-
 function createCheckmarkSVG() {
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
