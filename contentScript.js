@@ -356,6 +356,7 @@ class ExtensionUI {
             this.channelCheckboxes.set(id, false);
             console.log("Removing that checkbox...");
             this.channelCheckboxes.removeCheckbox(id);
+            this.unsubscribeButton.hide();
           });
 
           this.loadingPopup.hide();
