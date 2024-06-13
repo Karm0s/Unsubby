@@ -1,8 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Unsubby",
-  "version": "1.0",
-  "description": "Remove youtube subscripitons with one click.",
+  "version": "0.1",
+  "description": "An easier way to clean your youtube subscriptions.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{a3d0cbe5-2384-4e0e-989a-e539479fa75c}"
+    }
+  },
   "permissions": ["tabs", "scripting"],
   "action": {
     "default_icon": {
